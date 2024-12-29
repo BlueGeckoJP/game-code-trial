@@ -7,7 +7,17 @@ const contents = ref([
   "This is a test message!",
 ]);
 
-function onEnterLine(event: Event) {
+function lineSpanKeyHandler(event: KeyboardEvent) {
+  switch (event.key) {
+    case "Enter":
+      onLineSpanEnter(event);
+      break;
+    case "Backspace":
+      onLineSpanBackspace(event);
+  }
+}
+
+function onLineSpanEnter(event: KeyboardEvent) {
   event.preventDefault();
 
   const target = event.target as HTMLSpanElement;
@@ -24,9 +34,30 @@ function onEnterLine(event: Event) {
       "span"
     ) as HTMLSpanElement;
     nextLine.focus();
-    console.log(contents.value);
     target.parentElement?.querySelectorAll("br").forEach((br) => br.remove());
   });
+}
+
+function onLineSpanBackspace(event: KeyboardEvent) {
+  const target = event.target as HTMLSpanElement;
+  const editorContents = document.querySelector(
+    ".editor-contents"
+  ) as HTMLDivElement;
+  const index = Array.from(editorContents.children).indexOf(
+    target.parentElement as HTMLDivElement
+  );
+
+  if (target.textContent === "") {
+    event.preventDefault();
+    setTimeout(() => {
+      const prevLine =
+        target.parentElement?.previousElementSibling?.querySelector(
+          "span"
+        ) as HTMLSpanElement;
+      prevLine.focus();
+      contents.value.splice(index, 1);
+    });
+  }
 }
 </script>
 
@@ -39,9 +70,12 @@ function onEnterLine(event: Event) {
     </div>
     <div class="editor-contents">
       <div v-for="line in contents" class="editor-line">
-        <span contenteditable="true" @keyup.enter="onEnterLine($event)">{{
-          line
-        }}</span>
+        <span
+          contenteditable="true"
+          @keyup="lineSpanKeyHandler($event)"
+          @keyup.
+          >{{ line }}</span
+        >
       </div>
     </div>
   </div>
