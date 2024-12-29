@@ -6,6 +6,28 @@ const contents = ref([
   "And hello again!",
   "This is a test message!",
 ]);
+
+function onEnterLine(event: Event) {
+  event.preventDefault();
+
+  const target = event.target as HTMLSpanElement;
+  const editorContents = document.querySelector(
+    ".editor-contents"
+  ) as HTMLDivElement;
+  const index = Array.from(editorContents.children).indexOf(
+    target.parentElement as HTMLDivElement
+  );
+
+  contents.value.splice(index + 1, 0, "");
+  setTimeout(() => {
+    const nextLine = target.parentElement?.nextElementSibling?.querySelector(
+      "span"
+    ) as HTMLSpanElement;
+    nextLine.focus();
+    console.log(contents.value);
+    target.parentElement?.querySelectorAll("br").forEach((br) => br.remove());
+  });
+}
 </script>
 
 <template>
@@ -17,7 +39,9 @@ const contents = ref([
     </div>
     <div class="editor-contents">
       <div v-for="line in contents" class="editor-line">
-        <span contenteditable="true">{{ line }}</span>
+        <span contenteditable="true" @keyup.enter="onEnterLine($event)">{{
+          line
+        }}</span>
       </div>
     </div>
   </div>
