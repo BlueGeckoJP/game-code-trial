@@ -66,17 +66,14 @@ function onLineSpanBackspace(event: KeyboardEvent) {
   <div class="editor">
     <div class="line-numbers">
       <div class="line-number" v-for="num in contents.length">
-        {{ num }}
+        {{ String(num).padStart(3, "&nbsp;") }}
       </div>
     </div>
     <div class="editor-contents">
       <div v-for="line in contents" class="editor-line">
-        <span
-          contenteditable="true"
-          @keyup="lineSpanKeyHandler($event)"
-          @keyup.
-          >{{ line }}</span
-        >
+        <span contenteditable="true" @keypress="lineSpanKeyHandler($event)">{{
+          line
+        }}</span>
       </div>
     </div>
   </div>
