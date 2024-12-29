@@ -104,11 +104,11 @@ body {
   display: flex;
   width: 100vw;
   height: 100vh;
+  overflow: auto;
 }
 
 .editor-contents {
   flex-grow: 1;
-  overflow: auto;
 }
 
 .editor-line {
