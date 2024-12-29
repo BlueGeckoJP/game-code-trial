@@ -14,6 +14,7 @@ function lineSpanKeyHandler(event: KeyboardEvent) {
       break;
     case "Backspace":
       onLineSpanBackspace(event);
+      break;
   }
 }
 
