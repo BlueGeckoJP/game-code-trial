@@ -56,8 +56,9 @@ function onLineSpanBackspace(event: KeyboardEvent) {
   const index = Array.from(editorContents.children).indexOf(
     target.parentElement as HTMLDivElement
   );
+  const caretIndex = window.getSelection()?.getRangeAt(0).startOffset;
 
-  if (target.textContent === "") {
+  if (caretIndex === 0) {
     event.preventDefault();
     setTimeout(() => {
       const prevLine =
@@ -65,6 +66,7 @@ function onLineSpanBackspace(event: KeyboardEvent) {
           "span"
         ) as HTMLSpanElement;
       prevLine.focus();
+      contents.value[index - 1] += contents.value[index];
       contents.value.splice(index, 1);
     });
   }
