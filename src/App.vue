@@ -33,8 +33,12 @@ function onLineSpanEnter(event: KeyboardEvent) {
   const index = Array.from(editorContents.children).indexOf(
     target.parentElement as HTMLDivElement
   );
+  const caretIndex = window.getSelection()?.getRangeAt(0).startOffset;
 
-  contents.value.splice(index + 1, 0, "");
+  const rightOfCaret = contents.value[index].slice(caretIndex);
+  contents.value[index] = contents.value[index].slice(0, caretIndex);
+
+  contents.value.splice(index + 1, 0, rightOfCaret);
   setTimeout(() => {
     const nextLine = target.parentElement?.nextElementSibling?.querySelector(
       "span"
