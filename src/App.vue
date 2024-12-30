@@ -7,11 +7,16 @@ const contents = ref([
   "This is a test message!",
 ]);
 
-function lineSpanKeyHandler(event: KeyboardEvent) {
+function lineSpanKeyPressHandler(event: KeyboardEvent) {
   switch (event.key) {
     case "Enter":
       onLineSpanEnter(event);
       break;
+  }
+}
+
+function lineSpanKeyUpHandler(event: KeyboardEvent) {
+  switch (event.key) {
     case "Backspace":
       onLineSpanBackspace(event);
       break;
@@ -71,9 +76,12 @@ function onLineSpanBackspace(event: KeyboardEvent) {
     </div>
     <div class="editor-contents">
       <div v-for="line in contents" class="editor-line">
-        <span contenteditable="true" @keypress="lineSpanKeyHandler($event)">{{
-          line
-        }}</span>
+        <span
+          contenteditable="true"
+          @keypress="lineSpanKeyPressHandler($event)"
+          @keyup="lineSpanKeyUpHandler($event)"
+          >{{ line }}</span
+        >
       </div>
     </div>
   </div>
