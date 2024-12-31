@@ -12,16 +12,31 @@ function lineSpanKeyPressHandler(event: KeyboardEvent) {
     case "Enter":
       onLineSpanEnter(event);
       break;
+    default:
+      const index = Array.from(
+        (document.querySelector(".editor-contents") as HTMLDivElement).children
+      ).indexOf(
+        (event.target as HTMLSpanElement).parentElement as HTMLDivElement
+      );
+      contents.value[index] = (event.target as HTMLSpanElement).innerHTML;
+      break;
   }
+  console.log(event.key);
+  console.log(contents.value);
 }
 
 function lineSpanKeyUpHandler(event: KeyboardEvent) {
-  console.log(event.key);
-  console.log(contents.value);
-
   switch (event.key) {
     case "Backspace":
       onLineSpanBackspace(event);
+
+      const index = Array.from(
+        (document.querySelector(".editor-contents") as HTMLDivElement).children
+      ).indexOf(
+        (event.target as HTMLSpanElement).parentElement as HTMLDivElement
+      );
+      contents.value[index] = (event.target as HTMLSpanElement).innerHTML;
+
       break;
   }
 }
