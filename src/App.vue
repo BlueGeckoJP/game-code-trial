@@ -1,41 +1,56 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
+import Prism from "prismjs";
+import "prismjs/themes/prism.css";
 
-const editorContent = ref("");
+const editorTextarea = ref<HTMLTextAreaElement | null>(null);
+const lineNumbersEl = ref<HTMLDivElement | null>(null);
+const editorHighlight = ref<HTMLPreElement | null>(null);
+const code = ref("");
 const lineNumbers = ref<number[]>([1]);
 
 function getLineNumbers() {
-  const lines = editorContent.value.split("\n");
+  const lines = code.value.split("\n");
   if (lines.length == 0) return [1];
   return Array.from({ length: lines.length }, (_, i) => i + 1);
 }
 
 onMounted(() => {
-  const editor = document.querySelector(".editor") as HTMLTextAreaElement;
-  const lineNumbersEl = document.querySelector(".line-numbers") as HTMLElement;
-
-  editor.addEventListener("scroll", () => {
-    lineNumbersEl.scrollTop = editor.scrollTop;
-  });
+  if (editorTextarea.value && lineNumbersEl.value && editorHighlight.value) {
+    editorTextarea.value.addEventListener("scroll", () => {
+      lineNumbersEl.value!.scrollTop = editorTextarea.value!.scrollTop;
+      editorHighlight.value!.scrollTop = editorTextarea.value!.scrollTop;
+      editorHighlight.value!.scrollLeft = editorTextarea.value!.scrollLeft;
+    });
+  }
 });
 
-watch(editorContent, () => {
+watch(code, () => {
   lineNumbers.value = getLineNumbers();
+  console.log(code.value);
+  setTimeout(() => Prism.highlightAll(), 0);
 });
 </script>
 
 <template>
   <div class="editor-container">
-    <div class="line-numbers">
+    <div class="line-numbers" ref="lineNumbersEl">
       <div class="line-number" v-for="num in lineNumbers" :key="num">
         {{ num }}
       </div>
     </div>
-    <textarea
-      class="editor"
-      spellcheck="false"
-      v-model="editorContent"
-    ></textarea>
+    <div class="editor">
+      <textarea
+        class="editor-textarea"
+        spellcheck="false"
+        v-model="code"
+        ref="editorTextarea"
+      ></textarea>
+      <pre
+        ref="editorHighlight"
+        class="editor-highlight"
+      ><code class="language-javascript" v-html="code"></code></pre>
+    </div>
   </div>
 </template>
 
@@ -69,13 +84,39 @@ body {
 
 .editor {
   flex-grow: 1;
-  outline: none;
-  background-color: #f5efe7;
+  position: relative;
+}
+
+.editor-textarea,
+.editor-highlight {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  top: 0;
+  left: 0;
   font-size: 14px;
   line-height: 1.5;
-  resize: none;
   white-space: pre;
   overflow: auto;
+  border: 1px solid black;
+}
+
+.editor-textarea {
+  outline: none;
+  color: transparent;
+  background: transparent;
+  caret-color: #000;
+  resize: none;
+  z-index: 1;
+}
+
+.editor-highlight {
+  pointer-events: none;
+  background: #f5efe7;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  z-index: 0;
 }
 
 .line-numbers {
