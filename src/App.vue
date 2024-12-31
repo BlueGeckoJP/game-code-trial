@@ -7,36 +7,33 @@ const contents = ref([
   "This is a test message!",
 ]);
 
+function getIndex(target: HTMLSpanElement) {
+  return Array.from(
+    (document.querySelector(".editor-contents") as HTMLDivElement).children
+  ).indexOf(target.parentElement as HTMLDivElement);
+}
+
+function updateContents(target: HTMLSpanElement) {
+  const index = getIndex(target);
+  contents.value[index] = target.innerHTML;
+}
+
 function lineSpanKeyPressHandler(event: KeyboardEvent) {
   switch (event.key) {
     case "Enter":
       onLineSpanEnter(event);
       break;
     default:
-      const index = Array.from(
-        (document.querySelector(".editor-contents") as HTMLDivElement).children
-      ).indexOf(
-        (event.target as HTMLSpanElement).parentElement as HTMLDivElement
-      );
-      contents.value[index] = (event.target as HTMLSpanElement).innerHTML;
+      updateContents(event.target as HTMLSpanElement);
       break;
   }
-  console.log(event.key);
-  console.log(contents.value);
 }
 
 function lineSpanKeyUpHandler(event: KeyboardEvent) {
   switch (event.key) {
     case "Backspace":
       onLineSpanBackspace(event);
-
-      const index = Array.from(
-        (document.querySelector(".editor-contents") as HTMLDivElement).children
-      ).indexOf(
-        (event.target as HTMLSpanElement).parentElement as HTMLDivElement
-      );
-      contents.value[index] = (event.target as HTMLSpanElement).innerHTML;
-
+      updateContents(event.target as HTMLSpanElement);
       break;
   }
 }
@@ -45,12 +42,7 @@ function onLineSpanEnter(event: KeyboardEvent) {
   event.preventDefault();
 
   const target = event.target as HTMLSpanElement;
-  const editorContents = document.querySelector(
-    ".editor-contents"
-  ) as HTMLDivElement;
-  const index = Array.from(editorContents.children).indexOf(
-    target.parentElement as HTMLDivElement
-  );
+  const index = getIndex(target);
   const caretIndex = window.getSelection()?.getRangeAt(0).startOffset;
 
   const rightOfCaret = contents.value[index].slice(caretIndex);
@@ -68,12 +60,7 @@ function onLineSpanEnter(event: KeyboardEvent) {
 
 function onLineSpanBackspace(event: KeyboardEvent) {
   const target = event.target as HTMLSpanElement;
-  const editorContents = document.querySelector(
-    ".editor-contents"
-  ) as HTMLDivElement;
-  const index = Array.from(editorContents.children).indexOf(
-    target.parentElement as HTMLDivElement
-  );
+  const index = getIndex(target);
   const caretIndex = window.getSelection()?.getRangeAt(0).startOffset;
 
   if (caretIndex === 0) {
