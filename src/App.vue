@@ -29,11 +29,49 @@ function lineSpanKeyPressHandler(event: KeyboardEvent) {
   }
 }
 
-function lineSpanKeyUpHandler(event: KeyboardEvent) {
+function lineSpanKeyDownHandler(event: KeyboardEvent) {
   switch (event.key) {
     case "Backspace":
       onLineSpanBackspace(event);
       updateContents(event.target as HTMLSpanElement);
+      break;
+    case "ArrowUp":
+      event.preventDefault();
+      var caretPos = window.getSelection()?.getRangeAt(0).startOffset;
+      const prevLine = (
+        event.target as HTMLSpanElement
+      ).parentElement?.previousElementSibling?.querySelector(
+        "span"
+      ) as HTMLSpanElement;
+      prevLine.focus();
+      if (caretPos) {
+        const range = window.getSelection()?.getRangeAt(0);
+        if (range && caretPos <= prevLine.innerHTML.length) {
+          const child = prevLine.firstChild;
+          if (child) {
+            range.setStart(child, caretPos);
+          }
+        }
+      }
+      break;
+    case "ArrowDown":
+      event.preventDefault();
+      var caretPos = window.getSelection()?.getRangeAt(0).startOffset;
+      const nextLine = (
+        event.target as HTMLSpanElement
+      ).parentElement?.nextElementSibling?.querySelector(
+        "span"
+      ) as HTMLSpanElement;
+      nextLine.focus();
+      if (caretPos) {
+        const range = window.getSelection()?.getRangeAt(0);
+        if (range && caretPos <= nextLine.innerHTML.length) {
+          const child = nextLine.firstChild;
+          if (child) {
+            range.setStart(child, caretPos);
+          }
+        }
+      }
       break;
   }
 }
@@ -90,7 +128,7 @@ function onLineSpanBackspace(event: KeyboardEvent) {
         <span
           contenteditable="true"
           @keypress="lineSpanKeyPressHandler($event)"
-          @keyup="lineSpanKeyUpHandler($event)"
+          @keydown="lineSpanKeyDownHandler($event)"
           >{{ line }}</span
         >
       </div>
