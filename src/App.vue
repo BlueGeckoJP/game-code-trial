@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 const editorContent = ref("");
 const lineNumbers = ref<number[]>([1]);
@@ -9,6 +9,15 @@ function getLineNumbers() {
   if (lines.length == 0) return [1];
   return Array.from({ length: lines.length }, (_, i) => i + 1);
 }
+
+onMounted(() => {
+  const editor = document.querySelector(".editor") as HTMLTextAreaElement;
+  const lineNumbersEl = document.querySelector(".line-numbers") as HTMLElement;
+
+  editor.addEventListener("scroll", () => {
+    lineNumbersEl.scrollTop = editor.scrollTop;
+  });
+});
 
 watch(editorContent, () => {
   lineNumbers.value = getLineNumbers();
@@ -66,6 +75,11 @@ body {
   line-height: 1.5;
   resize: none;
   white-space: pre;
+  overflow: auto;
+}
+
+.line-numbers {
+  padding: 2px 0;
 }
 
 .line-number {
