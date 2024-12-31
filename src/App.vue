@@ -16,6 +16,9 @@ function lineSpanKeyPressHandler(event: KeyboardEvent) {
 }
 
 function lineSpanKeyUpHandler(event: KeyboardEvent) {
+  console.log(event.key);
+  console.log(contents.value);
+
   switch (event.key) {
     case "Backspace":
       onLineSpanBackspace(event);
@@ -140,5 +143,6 @@ body {
 [contenteditable="true"]:focus {
   background-color: #d8c4b6;
   outline: none;
+  white-space: pre-wrap;
 }
 </style>
