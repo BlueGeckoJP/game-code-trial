@@ -15,6 +15,20 @@ function getLineNumbers() {
   return Array.from({ length: lines.length }, (_, i) => i + 1);
 }
 
+function keyHandler(event: KeyboardEvent) {
+  switch (event.key) {
+    case "Tab":
+      event.preventDefault();
+      const start = editorTextarea.value!.selectionStart;
+      const end = editorTextarea.value!.selectionEnd;
+      code.value =
+        code.value.substring(0, start) + "  " + code.value.substring(end);
+      editorTextarea.value!.selectionStart = start + 2;
+      editorTextarea.value!.selectionEnd = start + 2;
+      break;
+  }
+}
+
 onMounted(() => {
   if (editorTextarea.value && lineNumbersEl.value && editorHighlight.value) {
     editorTextarea.value.addEventListener("scroll", () => {
@@ -27,7 +41,6 @@ onMounted(() => {
 
 watch(code, () => {
   lineNumbers.value = getLineNumbers();
-  console.log(code.value);
   setTimeout(() => Prism.highlightAll(), 0);
 });
 </script>
@@ -45,6 +58,7 @@ watch(code, () => {
         spellcheck="false"
         v-model="code"
         ref="editorTextarea"
+        @keydown="keyHandler($event)"
       ></textarea>
       <pre
         ref="editorHighlight"
