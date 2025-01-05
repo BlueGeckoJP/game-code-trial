@@ -177,19 +177,4 @@ body {
   user-select: none;
   line-height: 1.5;
 }
-
-pre[class*="language-"] {
-  padding: 0;
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.5;
-}
-
-code[class*="language-"] {
-  font-size: 14px;
-  font-family: "Fira Code", serif;
-  font-optical-sizing: auto;
-  font-weight: normal;
-  font-style: normal;
-}
 </style>
