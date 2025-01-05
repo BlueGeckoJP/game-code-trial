@@ -11,6 +11,7 @@ const lineNumbersEl = ref<HTMLDivElement | null>(null);
 const editorHighlight = ref<HTMLPreElement | null>(null);
 const code = ref("");
 const lineNumbers = ref<number[]>([1]);
+let isOpeningDialog = false;
 
 function getLineNumbers() {
   const lines = code.value.split("\n");
@@ -33,18 +34,26 @@ function keyHandler(event: KeyboardEvent) {
 }
 
 register("CommandOrControl+O", async () => {
-  const filename = await open({ multiple: false, directory: false });
-  if (filename) {
-    const file = await readTextFile(filename);
-    editorTextarea.value!!.value = file;
-    code.value = file;
+  if (!isOpeningDialog) {
+    isOpeningDialog = true;
+    const filename = await open({ multiple: false, directory: false });
+    if (filename) {
+      const file = await readTextFile(filename);
+      editorTextarea.value!!.value = file;
+      code.value = file;
+    }
+    isOpeningDialog = false;
   }
 });
 
 register("CommandOrControl+S", async () => {
-  const filename = await save();
-  if (filename) {
-    await writeTextFile(filename, code.value);
+  if (!isOpeningDialog) {
+    isOpeningDialog = true;
+    const filename = await save();
+    if (filename) {
+      await writeTextFile(filename, code.value);
+    }
+    isOpeningDialog = false;
   }
 });
 
