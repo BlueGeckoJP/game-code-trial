@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from "vue";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
+import { register } from "@tauri-apps/plugin-global-shortcut";
 
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
@@ -28,6 +29,10 @@ function keyHandler(event: KeyboardEvent) {
       break;
   }
 }
+
+register("CommandOrControl+S", () => {
+  console.log("aaaaa");
+});
 
 onMounted(() => {
   if (editorTextarea.value && lineNumbersEl.value && editorHighlight.value) {
