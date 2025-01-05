@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
-import Prism from "prismjs";
-import "prismjs/themes/prism.css";
 import { register } from "@tauri-apps/plugin-global-shortcut";
 import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
+import hljs from "highlight.js";
+import "highlight.js/styles/atom-one-dark.css";
 
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
@@ -67,9 +67,13 @@ onMounted(() => {
   }
 });
 
-watch(code, () => {
+watch(code, (newValue) => {
   lineNumbers.value = getLineNumbers();
-  setTimeout(() => Prism.highlightAll(), 0);
+  setTimeout(() => {
+    const highlightedCode = hljs.highlightAuto(newValue);
+    editorHighlight.value!!.innerHTML = highlightedCode.value;
+    console.log(highlightedCode.language);
+  }, 0);
 });
 </script>
 
