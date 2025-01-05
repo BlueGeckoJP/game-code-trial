@@ -3,6 +3,8 @@ import { onMounted, ref, watch } from "vue";
 import Prism from "prismjs";
 import "prismjs/themes/prism.css";
 import { register } from "@tauri-apps/plugin-global-shortcut";
+import { open, save } from "@tauri-apps/plugin-dialog";
+import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
@@ -30,8 +32,20 @@ function keyHandler(event: KeyboardEvent) {
   }
 }
 
-register("CommandOrControl+S", () => {
-  console.log("aaaaa");
+register("CommandOrControl+O", async () => {
+  const filename = await open({ multiple: false, directory: false });
+  if (filename) {
+    const file = await readTextFile(filename);
+    editorTextarea.value!!.value = file;
+    code.value = file;
+  }
+});
+
+register("CommandOrControl+S", async () => {
+  const filename = await save();
+  if (filename) {
+    await writeTextFile(filename, code.value);
+  }
 });
 
 onMounted(() => {
