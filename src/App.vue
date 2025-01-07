@@ -5,6 +5,8 @@ import { open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faM } from "@fortawesome/free-solid-svg-icons";
 
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
@@ -122,6 +124,10 @@ watch(code, (newValue) => {
             {{ lang }}
           </option>
         </select>
+        <FontAwesomeIcon
+          v-if="isManualLanguage"
+          :icon="faM"
+        ></FontAwesomeIcon>
       </div>
     </div>
   </div>
@@ -240,5 +246,4 @@ body {
   padding: 0 4px;
   flex-grow: 1;
 }
-
 </style>
