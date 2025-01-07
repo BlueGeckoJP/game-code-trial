@@ -112,11 +112,17 @@ watch(code, (newValue) => {
       </div>
     </div>
     <div class="status-bar">
-      <select v-model="language" @change="onChangeLanguage">
-        <option v-for="lang in hljs.listLanguages()">
-          {{ lang }}
-        </option>
-      </select>
+      <div class="language-selector-container">
+        <select
+          v-model="language"
+          @change="onChangeLanguage"
+          class="language-selector"
+        >
+          <option v-for="lang in hljs.listLanguages()">
+            {{ lang }}
+          </option>
+        </select>
+      </div>
     </div>
   </div>
 </template>
@@ -218,4 +224,21 @@ body {
   display: flex;
   align-items: center;
 }
+
+.language-selector-container {
+  margin-left: 8px;
+  width: 200px;
+  display: flex;
+}
+
+.language-selector {
+  appearance: none;
+  border: none;
+  background-color: transparent;
+  margin-left: 8px;
+  line-height: 1.5;
+  padding: 0 4px;
+  flex-grow: 1;
+}
+
 </style>
