@@ -11,7 +11,10 @@ const lineNumbersEl = ref<HTMLDivElement | null>(null);
 const editorHighlight = ref<HTMLPreElement | null>(null);
 const code = ref("");
 const lineNumbers = ref<number[]>([1]);
+const language = ref("");
+
 let isOpeningDialog = false;
+let isManualLanguage = false;
 
 function getLineNumbers() {
   const lines = code.value.split("\n");
@@ -31,6 +34,10 @@ function keyHandler(event: KeyboardEvent) {
       editorTextarea.value!.selectionEnd = start + 2;
       break;
   }
+}
+
+function onChangeLanguage() {
+  isManualLanguage = true;
 }
 
 register("CommandOrControl+O", async () => {
@@ -70,32 +77,46 @@ onMounted(() => {
 watch(code, (newValue) => {
   lineNumbers.value = getLineNumbers();
   setTimeout(() => {
-    const highlightedCode = hljs.highlightAuto(newValue);
-    editorHighlight.value!!.innerHTML = highlightedCode.value;
-    console.log(highlightedCode.language);
+    if (isManualLanguage) {
+      const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
+      editorHighlight.value!!.innerHTML = highlightedCode.value;
+    } else {
+      const highlightedCode = hljs.highlightAuto(newValue);
+      editorHighlight.value!!.innerHTML = highlightedCode.value;
+      language.value = highlightedCode.language as string;
+    }
   }, 0);
 });
 </script>
 
 <template>
-  <div class="editor-container">
-    <div class="line-numbers" ref="lineNumbersEl">
-      <div class="line-number" v-for="num in lineNumbers" :key="num">
-        {{ num }}
+  <div class="top-container">
+    <div class="editor-container">
+      <div class="line-numbers" ref="lineNumbersEl">
+        <div class="line-number" v-for="num in lineNumbers" :key="num">
+          {{ num }}
+        </div>
+      </div>
+      <div class="editor">
+        <textarea
+          class="editor-textarea"
+          spellcheck="false"
+          v-model="code"
+          ref="editorTextarea"
+          @keydown="keyHandler($event)"
+        ></textarea>
+        <pre
+          ref="editorHighlight"
+          class="editor-highlight"
+        ><code class="language-javascript" v-html="code"></code></pre>
       </div>
     </div>
-    <div class="editor">
-      <textarea
-        class="editor-textarea"
-        spellcheck="false"
-        v-model="code"
-        ref="editorTextarea"
-        @keydown="keyHandler($event)"
-      ></textarea>
-      <pre
-        ref="editorHighlight"
-        class="editor-highlight"
-      ><code class="language-javascript" v-html="code"></code></pre>
+    <div class="status-bar">
+      <select v-model="language" @change="onChangeLanguage">
+        <option v-for="lang in hljs.listLanguages()">
+          {{ lang }}
+        </option>
+      </select>
     </div>
   </div>
 </template>
@@ -114,6 +135,10 @@ watch(code, (newValue) => {
   font-style: normal;
 }
 
+:root {
+  --status-bar-height: 30px;
+}
+
 html body {
   margin: 0;
 }
@@ -122,10 +147,15 @@ body {
   background-color: #d8c4b6;
 }
 
-.editor-container {
-  display: flex;
+.top-container {
   width: 100vw;
   height: 100vh;
+}
+
+.editor-container {
+  display: flex;
+  width: 100%;
+  height: calc(100% - var(--status-bar-height));
 }
 
 .editor {
@@ -145,7 +175,7 @@ body {
   line-height: 1.5;
   white-space: pre;
   overflow: auto;
-  border: 1px solid black;
+  border-left: 1px solid black;
 }
 
 .editor-textarea {
@@ -176,5 +206,16 @@ body {
   min-width: 40px;
   user-select: none;
   line-height: 1.5;
+}
+
+.status-bar {
+  position: sticky;
+  bottom: 0;
+  width: 100%;
+  height: var(--status-bar-height);
+  background-color: #d8c4b6;
+  border-top: 1px solid black;
+  display: flex;
+  align-items: center;
 }
 </style>
