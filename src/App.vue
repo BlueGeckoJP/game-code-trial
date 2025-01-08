@@ -14,9 +14,9 @@ const editorHighlight = ref<HTMLPreElement | null>(null);
 const code = ref("");
 const lineNumbers = ref<number[]>([1]);
 const language = ref("");
+const isManualLanguage = ref(false);
 
 let isOpeningDialog = false;
-let isManualLanguage = false;
 
 function getLineNumbers() {
   const lines = code.value.split("\n");
@@ -39,7 +39,8 @@ function keyHandler(event: KeyboardEvent) {
 }
 
 function onChangeLanguage() {
-  isManualLanguage = true;
+  isManualLanguage.value = true;
+  console.log(isManualLanguage.value);
 }
 
 register("CommandOrControl+O", async () => {
@@ -79,7 +80,7 @@ onMounted(() => {
 watch(code, (newValue) => {
   lineNumbers.value = getLineNumbers();
   setTimeout(() => {
-    if (isManualLanguage) {
+    if (isManualLanguage.value) {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       editorHighlight.value!!.innerHTML = highlightedCode.value;
     } else {
@@ -124,10 +125,7 @@ watch(code, (newValue) => {
             {{ lang }}
           </option>
         </select>
-        <FontAwesomeIcon
-          v-if="isManualLanguage"
-          :icon="faM"
-        ></FontAwesomeIcon>
+        <FontAwesomeIcon v-if="isManualLanguage" :icon="faM"></FontAwesomeIcon>
       </div>
     </div>
   </div>
@@ -232,7 +230,6 @@ body {
 }
 
 .language-selector-container {
-  margin-left: 8px;
   width: 200px;
   display: flex;
 }
@@ -242,8 +239,10 @@ body {
   border: none;
   background-color: transparent;
   margin-left: 8px;
+  margin-right: 8px;
   line-height: 1.5;
   padding: 0 4px;
-  flex-grow: 1;
+  border-radius: 0;
+  width: min-content;
 }
 </style>
