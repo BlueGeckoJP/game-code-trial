@@ -43,6 +43,48 @@ function onChangeLanguage() {
   console.log(isManualLanguage.value);
 }
 
+/*
+function isAlnum(s: string) {
+  return /^[a-zA-Z0-9]+$/.test(s);
+}
+
+function keywordDetection(c: string) {
+  const pos = editorTextarea.value!!.selectionStart;
+
+  const beforePos = c.substring(0, pos);
+  const afterPos = c.substring(pos);
+  let beforeIndex = beforePos
+    .split("")
+    .findLastIndex((str) => str === " " || str === "\n" || str === ".");
+  let afterIndex = afterPos
+    .split("")
+    .findIndex((str) => str === " " || str === "\n");
+  if (afterIndex == -1) {
+    afterIndex = c.length;
+  }
+  const word = c.split("").slice(beforeIndex + 1, afterIndex).join("");
+
+  if (isAlnum(word.trim())) {
+    console.log(word.trim());
+  }
+}
+  */
+
+function keywordDetection(c: string) {
+  const pos = editorTextarea.value!!.selectionStart;
+
+  const beforePos = c.substring(0, pos);
+  const afterPos = c.substring(pos);
+  const beforeIndex = beforePos.split("").findLastIndex((str) => str == "\n") + 1;
+  let afterIndex = afterPos.split("").findIndex((str) => str == "\n");
+  if (afterIndex == -1) {
+    afterIndex = c.length;
+  }
+  const posLine = c.split("").slice(beforeIndex, afterIndex).join("");
+
+  console.log(posLine);
+}
+
 register("CommandOrControl+O", async () => {
   if (!isOpeningDialog) {
     isOpeningDialog = true;
@@ -83,6 +125,7 @@ watch(code, (newValue) => {
     if (isManualLanguage.value) {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       editorHighlight.value!!.innerHTML = highlightedCode.value;
+      keywordDetection(newValue);
     } else {
       const highlightedCode = hljs.highlightAuto(newValue);
       editorHighlight.value!!.innerHTML = highlightedCode.value;
@@ -128,6 +171,7 @@ watch(code, (newValue) => {
         <FontAwesomeIcon v-if="isManualLanguage" :icon="faM"></FontAwesomeIcon>
       </div>
     </div>
+    <div class="points-container-fixed"></div>
   </div>
 </template>
 
@@ -244,5 +288,14 @@ body {
   padding: 0 4px;
   border-radius: 0;
   width: min-content;
+}
+
+.points-container-fixed {
+  position: fixed;
+  width: 200px;
+  height: 100px;
+  bottom: calc(40px + var(--status-bar-height));
+  right: 40px;
+  border: 1px solid black;
 }
 </style>
