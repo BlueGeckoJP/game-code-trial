@@ -17,6 +17,7 @@ const language = ref("");
 const isManualLanguage = ref(false);
 
 let isOpeningDialog = false;
+let oldCode = "";
 
 function getLineNumbers() {
   const lines = code.value.split("\n");
@@ -40,49 +41,40 @@ function keyHandler(event: KeyboardEvent) {
 
 function onChangeLanguage() {
   isManualLanguage.value = true;
-  console.log(isManualLanguage.value);
 }
 
-/*
-function isAlnum(s: string) {
-  return /^[a-zA-Z0-9]+$/.test(s);
-}
+function keywordDetection(oldCode: string, newCode: string) {
+  const oldDoc = new DOMParser().parseFromString(oldCode, "text/html");
+  const newDoc = new DOMParser().parseFromString(newCode, "text/html");
 
-function keywordDetection(c: string) {
-  const pos = editorTextarea.value!!.selectionStart;
+  const newHighlightElements: Element[] = [];
+  const newKeywordElements = newDoc.getElementsByClassName("hljs-keyword");
 
-  const beforePos = c.substring(0, pos);
-  const afterPos = c.substring(pos);
-  let beforeIndex = beforePos
-    .split("")
-    .findLastIndex((str) => str === " " || str === "\n" || str === ".");
-  let afterIndex = afterPos
-    .split("")
-    .findIndex((str) => str === " " || str === "\n");
-  if (afterIndex == -1) {
-    afterIndex = c.length;
-  }
-  const word = c.split("").slice(beforeIndex + 1, afterIndex).join("");
+  Array.from(newKeywordElements).forEach((newElement) => {
+    const getElementPath = (element: Element): string => {
+      const path: string[] = [];
+      let current: Element | null = element;
 
-  if (isAlnum(word.trim())) {
-    console.log(word.trim());
-  }
-}
-  */
+      while (current && current.parentElement) {
+        const index = Array.from(current.parentElement.children).indexOf(
+          current
+        );
+        path.unshift(`${current.tagName}:nth-child(${index + 1})`);
+        current = current.parentElement;
+      }
 
-function keywordDetection(c: string) {
-  const pos = editorTextarea.value!!.selectionStart;
+      return path.join(" > ");
+    };
 
-  const beforePos = c.substring(0, pos);
-  const afterPos = c.substring(pos);
-  const beforeIndex = beforePos.split("").findLastIndex((str) => str == "\n") + 1;
-  let afterIndex = afterPos.split("").findIndex((str) => str == "\n");
-  if (afterIndex == -1) {
-    afterIndex = c.length;
-  }
-  const posLine = c.split("").slice(beforeIndex, afterIndex).join("");
+    const elementPath = getElementPath(newElement);
+    const oldElement = oldDoc.querySelector(elementPath);
 
-  console.log(posLine);
+    if (!oldElement || !oldElement.classList.contains("hljs-keyword")) {
+      newHighlightElements.push(newElement);
+    }
+  });
+
+  return newHighlightElements;
 }
 
 register("CommandOrControl+O", async () => {
@@ -124,8 +116,14 @@ watch(code, (newValue) => {
   setTimeout(() => {
     if (isManualLanguage.value) {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
+      console.log(
+        keywordDetection(
+          oldCode,
+          highlightedCode.value
+        )
+      );
       editorHighlight.value!!.innerHTML = highlightedCode.value;
-      keywordDetection(newValue);
+      oldCode = highlightedCode.value;
     } else {
       const highlightedCode = hljs.highlightAuto(newValue);
       editorHighlight.value!!.innerHTML = highlightedCode.value;
