@@ -6,7 +6,7 @@ import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faM } from "@fortawesome/free-solid-svg-icons";
+import { faCoins, faM } from "@fortawesome/free-solid-svg-icons";
 
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
@@ -15,6 +15,7 @@ const code = ref("");
 const lineNumbers = ref<number[]>([1]);
 const language = ref("");
 const isManualLanguage = ref(false);
+const coins = ref(0);
 
 let isOpeningDialog = false;
 let oldCode = "";
@@ -47,7 +48,7 @@ function keywordDetection(oldCode: string, newCode: string) {
   const oldDoc = new DOMParser().parseFromString(oldCode, "text/html");
   const newDoc = new DOMParser().parseFromString(newCode, "text/html");
 
-  const newHighlightElements: Element[] = [];
+  const newHighlightElements: string[] = [];
   const newKeywordElements = newDoc.getElementsByClassName("hljs-keyword");
 
   Array.from(newKeywordElements).forEach((newElement) => {
@@ -70,7 +71,7 @@ function keywordDetection(oldCode: string, newCode: string) {
     const oldElement = oldDoc.querySelector(elementPath);
 
     if (!oldElement || !oldElement.classList.contains("hljs-keyword")) {
-      newHighlightElements.push(newElement);
+      newHighlightElements.push(newElement.innerHTML);
     }
   });
 
@@ -116,12 +117,10 @@ watch(code, (newValue) => {
   setTimeout(() => {
     if (isManualLanguage.value) {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
-      console.log(
-        keywordDetection(
-          oldCode,
-          highlightedCode.value
-        )
-      );
+      const newKeyword = keywordDetection(oldCode, highlightedCode.value);
+      if (newKeyword.length != 0) {
+        coins.value += newKeyword.length * 10;
+      }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
     } else {
@@ -166,10 +165,14 @@ watch(code, (newValue) => {
             {{ lang }}
           </option>
         </select>
-        <FontAwesomeIcon v-if="isManualLanguage" :icon="faM"></FontAwesomeIcon>
+        <FontAwesomeIcon v-if="isManualLanguage" :icon="faM" class="fa-m-manual-lang"></FontAwesomeIcon>
+      </div>
+      <div class="points-container">
+        <FontAwesomeIcon :icon="faCoins"></FontAwesomeIcon>
+        <span v-text="coins" class="span-coins"></span>
       </div>
     </div>
-    <div class="points-container-fixed"></div>
+    <div class="notifications-container-fixed"></div>
   </div>
 </template>
 
@@ -268,12 +271,13 @@ body {
   background-color: #d8c4b6;
   border-top: 1px solid black;
   display: flex;
-  align-items: center;
 }
 
 .language-selector-container {
   width: 200px;
   display: flex;
+  align-items: center;
+  border-right: 1px solid #000;
 }
 
 .language-selector {
@@ -285,10 +289,31 @@ body {
   line-height: 1.5;
   padding: 0 4px;
   border-radius: 0;
-  width: min-content;
+  flex-grow: 1;
 }
 
-.points-container-fixed {
+.fa-m-manual-lang {
+  margin-right: 8px;
+  width: 15px;
+  height: 15px;
+}
+
+.points-container {
+  width: 200px;
+  border-left: 1px solid #000;
+  margin-left: auto;
+  padding-left: 8px;
+  padding-right: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.span-coins {
+  margin-left: 4px;
+}
+
+.notifications-container-fixed {
   position: fixed;
   width: 200px;
   height: 100px;
