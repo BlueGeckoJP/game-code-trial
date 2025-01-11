@@ -8,6 +8,18 @@ import "highlight.js/styles/atom-one-dark.css";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faCoins, faM } from "@fortawesome/free-solid-svg-icons";
 
+interface KeywordItem {
+  class: string;
+  display: string;
+  point: number;
+}
+
+const keywordItems: KeywordItem[] = [
+  { class: "hljs-keyword", display: "Keyword", point: 10 },
+  { class: "hljs-title function_", display: "Function", point: 5 },
+  { class: "hljs-variable language_", display: "Language Variable", point: 5 },
+];
+
 const editorTextarea = ref<HTMLTextAreaElement | null>(null);
 const lineNumbersEl = ref<HTMLDivElement | null>(null);
 const editorHighlight = ref<HTMLPreElement | null>(null);
@@ -44,12 +56,19 @@ function onChangeLanguage() {
   isManualLanguage.value = true;
 }
 
-function keywordDetection(oldCode: string, newCode: string) {
+function keywordDetection(oldCode: string, newCode: string): KeywordItem[] {
   const oldDoc = new DOMParser().parseFromString(oldCode, "text/html");
   const newDoc = new DOMParser().parseFromString(newCode, "text/html");
 
-  const newHighlightElements: string[] = [];
-  const newKeywordElements = newDoc.getElementsByClassName("hljs-keyword");
+  const newKeywordItems: KeywordItem[] = [];
+  let newKeywordElements: Element[] = [];
+
+  keywordItems.forEach((v) => {
+    newKeywordElements = [
+      ...newKeywordElements,
+      ...Array.from(newDoc.getElementsByClassName(v.class)),
+    ];
+  });
 
   Array.from(newKeywordElements).forEach((newElement) => {
     const getElementPath = (element: Element): string => {
@@ -70,12 +89,17 @@ function keywordDetection(oldCode: string, newCode: string) {
     const elementPath = getElementPath(newElement);
     const oldElement = oldDoc.querySelector(elementPath);
 
-    if (!oldElement || !oldElement.classList.contains("hljs-keyword")) {
-      newHighlightElements.push(newElement.innerHTML);
+    const matchedItem = keywordItems.find((v) => {
+      console.log(v.class, newElement.className);
+      return v.class == newElement.className;
+    });
+
+    if (!oldElement && matchedItem) {
+      newKeywordItems.push(matchedItem as KeywordItem);
     }
   });
 
-  return newHighlightElements;
+  return newKeywordItems;
 }
 
 register("CommandOrControl+O", async () => {
@@ -119,7 +143,7 @@ watch(code, (newValue) => {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       const newKeyword = keywordDetection(oldCode, highlightedCode.value);
       if (newKeyword.length != 0) {
-        coins.value += newKeyword.length * 10;
+        newKeyword.forEach((k) => (coins.value += k.point));
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
@@ -165,7 +189,11 @@ watch(code, (newValue) => {
             {{ lang }}
           </option>
         </select>
-        <FontAwesomeIcon v-if="isManualLanguage" :icon="faM" class="fa-m-manual-lang"></FontAwesomeIcon>
+        <FontAwesomeIcon
+          v-if="isManualLanguage"
+          :icon="faM"
+          class="fa-m-manual-lang"
+        ></FontAwesomeIcon>
       </div>
       <div class="points-container">
         <FontAwesomeIcon :icon="faCoins"></FontAwesomeIcon>
