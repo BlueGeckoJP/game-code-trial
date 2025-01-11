@@ -14,6 +14,11 @@ interface KeywordItem {
   point: number;
 }
 
+interface DetectedItem {
+  value: string;
+  keywordItem: KeywordItem;
+}
+
 const keywordItems: KeywordItem[] = [
   { class: "hljs-keyword", display: "Keyword", point: 10 },
   { class: "hljs-title function_", display: "Function", point: 5 },
@@ -56,11 +61,11 @@ function onChangeLanguage() {
   isManualLanguage.value = true;
 }
 
-function keywordDetection(oldCode: string, newCode: string): KeywordItem[] {
+function keywordDetection(oldCode: string, newCode: string): DetectedItem[] {
   const oldDoc = new DOMParser().parseFromString(oldCode, "text/html");
   const newDoc = new DOMParser().parseFromString(newCode, "text/html");
 
-  const newKeywordItems: KeywordItem[] = [];
+  const detectedItems: DetectedItem[] = [];
   let newKeywordElements: Element[] = [];
 
   keywordItems.forEach((v) => {
@@ -90,16 +95,18 @@ function keywordDetection(oldCode: string, newCode: string): KeywordItem[] {
     const oldElement = oldDoc.querySelector(elementPath);
 
     const matchedItem = keywordItems.find((v) => {
-      console.log(v.class, newElement.className);
       return v.class == newElement.className;
     });
 
     if (!oldElement && matchedItem) {
-      newKeywordItems.push(matchedItem as KeywordItem);
+      detectedItems.push({
+        value: newElement.innerHTML,
+        keywordItem: matchedItem,
+      });
     }
   });
 
-  return newKeywordItems;
+  return detectedItems;
 }
 
 register("CommandOrControl+O", async () => {
@@ -143,7 +150,8 @@ watch(code, (newValue) => {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       const newKeyword = keywordDetection(oldCode, highlightedCode.value);
       if (newKeyword.length != 0) {
-        newKeyword.forEach((k) => (coins.value += k.point));
+        newKeyword.forEach((k) => (coins.value += k.keywordItem.point));
+        console.log(newKeyword);
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
