@@ -33,6 +33,9 @@ const lineNumbers = ref<number[]>([1]);
 const language = ref("");
 const isManualLanguage = ref(false);
 const coins = ref(0);
+const pnValue = ref<HTMLSpanElement | null>(null);
+const pnDisplay = ref<HTMLSpanElement | null>(null);
+const pnPoint = ref<HTMLSpanElement | null>(null);
 
 let isOpeningDialog = false;
 let oldCode = "";
@@ -150,8 +153,12 @@ watch(code, (newValue) => {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       const newKeyword = keywordDetection(oldCode, highlightedCode.value);
       if (newKeyword.length != 0) {
-        newKeyword.forEach((k) => (coins.value += k.keywordItem.point));
-        console.log(newKeyword);
+        newKeyword.forEach((k) => {
+          coins.value += k.keywordItem.point;
+          pnValue.value!!.innerHTML = k.value;
+          pnDisplay.value!!.innerHTML = k.keywordItem.display;
+          pnPoint.value!!.innerHTML = k.keywordItem.point.toString();
+        });
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
@@ -208,7 +215,13 @@ watch(code, (newValue) => {
         <span v-text="coins" class="span-coins"></span>
       </div>
     </div>
-    <div class="notifications-container-fixed"></div>
+    <div class="points-notifications-container-fixed">
+      <span class="points-notify-value" ref="pnValue"></span>
+      <div class="points-notify-etc">
+        <span class="points-notify-display" ref="pnDisplay"></span>
+        <span class="points-notify-point" ref="pnPoint"></span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -349,12 +362,18 @@ body {
   margin-left: 4px;
 }
 
-.notifications-container-fixed {
+.points-notifications-container-fixed {
   position: fixed;
   width: 200px;
   height: 100px;
   bottom: calc(40px + var(--status-bar-height));
   right: 40px;
   border: 1px solid black;
+}
+
+.points-notify-etc {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px;
 }
 </style>
