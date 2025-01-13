@@ -182,15 +182,17 @@ watch(code, (newValue) => {
       const highlightedCode = hljs.highlightAuto(newValue, [language.value]);
       const newKeyword = keywordDetection(oldCode, highlightedCode.value);
       if (newKeyword.length != 0) {
-        newKeyword.forEach((k) => {
-          coins.value += k.keywordItem.point;
-          pnValue.value!!.innerHTML = k.value;
-          pnDisplay.value!!.innerHTML = k.keywordItem.display;
-          pnPoint.value!!.innerHTML = `+ ${k.keywordItem.point} Coins`;
+        newKeyword.forEach((k, i) => {
+          setTimeout(() => {
+            coins.value += k.keywordItem.point;
+            pnValue.value!!.innerHTML = k.value;
+            pnDisplay.value!!.innerHTML = k.keywordItem.display;
+            pnPoint.value!!.innerHTML = `+ ${k.keywordItem.point} Coins`;
+            pnContainer.value!!.classList.remove("animate-fade-in-out");
+            void pnContainer.value!!.offsetWidth;
+            pnContainer.value!!.classList.add("animate-fade-in-out");
+          }, 100 * i);
         });
-        pnContainer.value!!.classList.remove("animate-fade-in-out");
-        void pnContainer.value!!.offsetWidth;
-        pnContainer.value!!.classList.add("animate-fade-in-out");
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
