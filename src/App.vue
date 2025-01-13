@@ -36,6 +36,7 @@ const coins = ref(0);
 const pnValue = ref<HTMLSpanElement | null>(null);
 const pnDisplay = ref<HTMLSpanElement | null>(null);
 const pnPoint = ref<HTMLSpanElement | null>(null);
+const pnContainer = ref<HTMLDivElement | null>(null);
 
 let isOpeningDialog = false;
 let oldCode = "";
@@ -159,6 +160,9 @@ watch(code, (newValue) => {
           pnDisplay.value!!.innerHTML = k.keywordItem.display;
           pnPoint.value!!.innerHTML = `+ ${k.keywordItem.point} Coins`;
         });
+        pnContainer.value!!.classList.remove("animate-fade-in-out");
+        void pnContainer.value!!.offsetWidth;
+        pnContainer.value!!.classList.add("animate-fade-in-out");
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
       oldCode = highlightedCode.value;
@@ -215,18 +219,27 @@ watch(code, (newValue) => {
         <span v-text="coins" class="span-coins montserrat-underline"></span>
       </div>
     </div>
-    <div class="points-notifications-container-fixed">
-      <span class="points-notify-value montserrat-underline" ref="pnValue"></span>
+    <div class="points-notifications-container-fixed" ref="pnContainer">
+      <span
+        class="points-notify-value montserrat-underline"
+        ref="pnValue"
+      ></span>
       <div class="points-notify-etc">
-        <span class="points-notify-display montserrat-underline" ref="pnDisplay"></span>
-        <span class="points-notify-point montserrat-underline" ref="pnPoint"></span>
+        <span
+          class="points-notify-display montserrat-underline"
+          ref="pnDisplay"
+        ></span>
+        <span
+          class="points-notify-point montserrat-underline"
+          ref="pnPoint"
+        ></span>
       </div>
     </div>
   </div>
 </template>
 
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat+Underline:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat+Underline:ital,wght@0,100..900;1,100..900&display=swap");
 
 * {
   box-sizing: border-box;
@@ -257,7 +270,6 @@ body {
   font-weight: normal;
   font-style: normal;
 }
-
 
 .top-container {
   width: 100vw;
@@ -376,7 +388,25 @@ body {
   height: 100px;
   bottom: calc(40px + var(--status-bar-height));
   right: 40px;
-  border: 1px solid black;
+  opacity: 0;
+  animation: none;
+}
+
+.animate-fade-in-out {
+  animation: fadeInOut 5s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .points-notify-value {
