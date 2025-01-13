@@ -1,12 +1,19 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from "vue";
 import { register } from "@tauri-apps/plugin-global-shortcut";
-import { open, save } from "@tauri-apps/plugin-dialog";
+import { ask, open, save } from "@tauri-apps/plugin-dialog";
 import { readTextFile, writeTextFile } from "@tauri-apps/plugin-fs";
 import hljs from "highlight.js";
 import "highlight.js/styles/atom-one-dark.css";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { faCoins, faM } from "@fortawesome/free-solid-svg-icons";
+import {
+  faCoins,
+  faM,
+  faMaximize,
+  faMinimize,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
 interface KeywordItem {
   class: string;
@@ -113,6 +120,27 @@ function keywordDetection(oldCode: string, newCode: string): DetectedItem[] {
   return detectedItems;
 }
 
+function onClickMinimize() {
+  getCurrentWindow().minimize();
+}
+
+function onClickMaximize() {
+  getCurrentWindow().toggleMaximize();
+}
+
+async function onClickClose() {
+  await ask("Are you sure you want to close this window?").then(
+    async (value) => {
+      if (value) {
+        await getCurrentWindow().close();
+      }
+    }
+  );
+}
+
+function onMouseDownTitleBar() {
+  getCurrentWindow().startDragging();
+}
 register("CommandOrControl+O", async () => {
   if (!isOpeningDialog) {
     isOpeningDialog = true;
@@ -177,6 +205,16 @@ watch(code, (newValue) => {
 
 <template>
   <div class="top-container">
+    <div class="title-bar">
+      <span class="span-title montserrat-underline">GameCode Trial!</span>
+      <div class="menu-bar"></div>
+      <div class="title-bar-space" @mousedown="onMouseDownTitleBar()"></div>
+      <div class="window-buttons">
+        <FontAwesomeIcon :icon="faMinimize" @click="onClickMinimize" />
+        <FontAwesomeIcon :icon="faMaximize" @click="onClickMaximize" />
+        <FontAwesomeIcon :icon="faXmark" @click="onClickClose" />
+      </div>
+    </div>
     <div class="editor-container">
       <div class="line-numbers" ref="lineNumbersEl">
         <div class="line-number" v-for="num in lineNumbers" :key="num">
@@ -253,7 +291,13 @@ watch(code, (newValue) => {
 }
 
 :root {
+  --title-bar-height: 30px;
   --status-bar-height: 30px;
+
+  --first-color: #faf7f0;
+  --second-color: #d8d2c2;
+  --third-color: #b17457;
+  --fourth-color: #4a4947;
 }
 
 html body {
@@ -261,7 +305,7 @@ html body {
 }
 
 body {
-  background-color: #d8c4b6;
+  border: 1px solid black;
 }
 
 .montserrat-underline {
@@ -276,10 +320,45 @@ body {
   height: 100vh;
 }
 
+.title-bar {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--title-bar-height);
+  background-color: var(--second-color);
+  border-bottom: 1px solid black;
+  display: flex;
+  align-items: center;
+}
+
+.title-bar-space {
+  flex-grow: 1;
+  height: 100%;
+}
+
+.span-title {
+  margin-left: 8px;
+}
+
+.window-buttons {
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
+
+.window-buttons > * {
+  margin-left: 16px;
+}
+
+.window-buttons > *:first-of-type {
+  margin-left: 0;
+}
+
 .editor-container {
   display: flex;
   width: 100%;
-  height: calc(100% - var(--status-bar-height));
+  height: calc(100% - var(--status-bar-height) - var(--title-bar-height));
 }
 
 .editor {
@@ -317,7 +396,7 @@ body {
 
 .editor-highlight {
   pointer-events: none;
-  background: #f5efe7;
+  background: var(--first-color);
   white-space: pre-wrap;
   word-wrap: break-word;
   z-index: 0;
@@ -325,6 +404,7 @@ body {
 
 .line-numbers {
   padding: 2px 0;
+  background-color: var(--third-color);
 }
 
 .line-number {
@@ -341,7 +421,7 @@ body {
   bottom: 0;
   width: 100%;
   height: var(--status-bar-height);
-  background-color: #d8c4b6;
+  background-color: var(--fourth-color);
   border-top: 1px solid black;
   display: flex;
 }

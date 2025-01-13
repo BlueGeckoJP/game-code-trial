@@ -14,7 +14,8 @@
       {
         "title": "game-code-trial",
         "width": 800,
-        "height": 600
+        "height": 600,
+        "decorations": false
       }
     ],
     "security": {
