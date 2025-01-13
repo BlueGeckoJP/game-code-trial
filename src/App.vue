@@ -300,6 +300,10 @@ body {
   white-space: pre;
   overflow: auto;
   border-left: 1px solid black;
+  padding: 0;
+  tab-size: 2;
+  -moz-tab-size: 2;
+  font-family: "Fira Code", monospace;
 }
 
 .editor-textarea {
