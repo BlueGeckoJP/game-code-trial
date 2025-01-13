@@ -371,9 +371,20 @@ body {
   border: 1px solid black;
 }
 
+.points-notify-value {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -30%);
+}
+
 .points-notify-etc {
+  position: absolute;
   display: flex;
   justify-content: space-between;
   padding: 4px;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
 }
 </style>
