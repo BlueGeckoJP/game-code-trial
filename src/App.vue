@@ -157,7 +157,7 @@ watch(code, (newValue) => {
           coins.value += k.keywordItem.point;
           pnValue.value!!.innerHTML = k.value;
           pnDisplay.value!!.innerHTML = k.keywordItem.display;
-          pnPoint.value!!.innerHTML = k.keywordItem.point.toString();
+          pnPoint.value!!.innerHTML = `+ ${k.keywordItem.point} Coins`;
         });
       }
       editorHighlight.value!!.innerHTML = highlightedCode.value;
@@ -198,7 +198,7 @@ watch(code, (newValue) => {
         <select
           v-model="language"
           @change="onChangeLanguage"
-          class="language-selector"
+          class="language-selector montserrat-underline"
         >
           <option v-for="lang in hljs.listLanguages()">
             {{ lang }}
@@ -212,21 +212,21 @@ watch(code, (newValue) => {
       </div>
       <div class="points-container">
         <FontAwesomeIcon :icon="faCoins"></FontAwesomeIcon>
-        <span v-text="coins" class="span-coins"></span>
+        <span v-text="coins" class="span-coins montserrat-underline"></span>
       </div>
     </div>
     <div class="points-notifications-container-fixed">
-      <span class="points-notify-value" ref="pnValue"></span>
+      <span class="points-notify-value montserrat-underline" ref="pnValue"></span>
       <div class="points-notify-etc">
-        <span class="points-notify-display" ref="pnDisplay"></span>
-        <span class="points-notify-point" ref="pnPoint"></span>
+        <span class="points-notify-display montserrat-underline" ref="pnDisplay"></span>
+        <span class="points-notify-point montserrat-underline" ref="pnPoint"></span>
       </div>
     </div>
   </div>
 </template>
 
 <style>
-@import url("https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700");
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Montserrat+Underline:ital,wght@0,100..900;1,100..900&display=swap');
 
 * {
   box-sizing: border-box;
@@ -250,6 +250,14 @@ html body {
 body {
   background-color: #d8c4b6;
 }
+
+.montserrat-underline {
+  font-family: "Montserrat Underline", serif;
+  font-optical-sizing: auto;
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 .top-container {
   width: 100vw;
@@ -376,13 +384,19 @@ body {
   top: 30%;
   left: 50%;
   transform: translate(-50%, -30%);
+
+  font-family: "Montserrat Underline", serif;
+  font-optical-sizing: auto;
+  font-weight: bold;
+  font-style: normal;
+  font-size: xx-large;
 }
 
 .points-notify-etc {
   position: absolute;
   display: flex;
   justify-content: space-between;
-  padding: 4px;
+  padding: 4px 12px;
   bottom: 0;
   width: 100%;
   height: 30px;
