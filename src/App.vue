@@ -476,6 +476,7 @@ body {
   right: 40px;
   opacity: 0;
   animation: none;
+  overflow: visible;
 }
 
 .animate-fade-in-out {
